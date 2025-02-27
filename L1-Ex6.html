@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Level 1 - Ex. 4</title>
+    <!-- optional CSS framework -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <style>
+      /* optional your CSS */
+    </style>
+  </head>
+  <body>
+    <!-- Your HTML -->
+    <div id="app">
+      <h1>Products</h1>
+      <div>
+        <input v-model="id" type="number" placeholder="ID" min="1" />
+        <input v-model="name" type="text" placeholder="Title" />
+        <input
+          v-model="price"
+          type="number"
+          placeholder="Price en CHF"
+          min="1"
+        />
+        <br />
+        <button type="submit" v-on:click="addProduct">Add</button>
+
+        <!--search field-->
+        <br />
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Search for a product"
+        />
+        <br />
+
+        <!-- Add an "Available products only" checkbox. If the box is checked, only available products are displayed.-->
+        <input type="checkbox" v-model="showAvailable" id="showAvailable" />
+        <label for="showAvailable">Available products only</label> <br />
+
+        <!-- Add a dropdown list "Sort by" with the choices "Name", and "Price".-->
+        <select type="dropdown" v-model="sortBy">
+          <option value="name">Name</option>
+          <option value="price">Price</option>
+        </select>
+      </div>
+      <ul>
+        <!-- parcourir chaque produit filtrés dans la liste des produits -->
+        <li v-for="product in filteredProducts" :key="product.id" type="none">
+          <!-- afficher le nom du produit -->
+          <h2>
+            {{ product.name }}
+            <span
+              v-if="!product.available"
+              style="background-color: red; color: whitesmoke"
+              >Unavailable</span
+            >
+          </h2>
+          <!-- afficher le prix du produit -->
+          <span>Price: {{ product.price }}$</span> <br />
+          <span>Id : {{ product.id }}</span> <br />
+          <button
+            type="submit"
+            v-on:click="addToCart(product)"
+            v-show="product.available"
+          >
+            Add to cart
+          </button>
+        </li>
+      </ul>
+
+      <!-- show the added products to the cart -->
+      <div>
+        <h2>Cart</h2>
+        <ul v-if="cart.length > 0">
+          <li
+            v-for="item in cart"
+            :key="item.id"
+            class="list-group-item d-flex justify-content-between"
+          >
+            <span>{{ item.name }}</span>
+            <input
+              type="number"
+              v-model="item.quantity"
+              min="1"
+              value="item.quantity"
+            />
+            <span> x {{item.price}} = {{ item.quantity * item.price }}$</span>
+            <button v-on:click="removeFromCart(item)">X</button>
+          </li>
+        </ul>
+        <p v-else>No products in the cart</p>
+
+        <!-- Total -->
+        <h3 v-if="cart.length > 0">
+          You have {{ totalItems }} items for a total of {{totalPrice}}.-
+        </h3>
+      </div>
+    </div>
+    <!-- optional JavaScript vue framework -->
+    <script type="module">
+      import { createApp } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+      /* Your code */
+
+      // create a new Vue app
+      const app = createApp({
+        data() {
+          return {
+            products: [
+              { id: 1, name: "Apple", price: 1000, available: true },
+              { id: 2, name: "Samsung", price: 290, available: false },
+              { id: 3, name: "Huawei", price: 135, available: true },
+              { id: 4, name: "Xiaomi", price: 40, available: false },
+              { id: 5, name: "OnePlus", price: 500, available: true },
+            ],
+
+            // reset the input fields
+            id: "",
+            name: "",
+            price: "",
+            search: "",
+            showAvailable: false,
+            sortBy: "name",
+
+            // cart
+            cart: [],
+          };
+        },
+
+        computed: {
+          // theses are the products that will be displayed in the list
+          // we can filter them by name, price and availability
+          filteredProducts() {
+            // 1. sauvegarder les produits dans une variable
+            let result = this.products;
+
+            // 2. filter the products by search
+            if (this.search !== "") {
+              result = result.filter((product) =>
+                product.name.includes(this.search)
+              );
+
+              // 3. filter the products by availability
+              if (this.showAvailable) {
+                result = result.filter((product) => product.available);
+              }
+
+              // 4. sort the products by name or price
+              if (this.sortBy === "name") {
+                result = result.sort((a, b) => a.name.localeCompare(b.name));
+              } else if (this.sortBy === "price") {
+                result = result.sort((a, b) => a.price - b.price);
+              }
+            } else {
+              result = [];
+            }
+
+            return result;
+          },
+
+          totalItems() {
+            return this.cart.reduce((sum, item) => sum + item.quantity, 0);
+          },
+
+          totalPrice() {
+            return this.cart.reduce(
+              (sum, item) => sum + item.quantity * item.price,
+              0
+            );
+          },
+        },
+        // add products data to the app when the addProduct method is called
+        methods: {
+          // add the product to the cart
+          addToCart(product) {
+            let cartItem = this.cart.find((item) => item.id === product.id);
+            if (cartItem) {
+              cartItem.quantity++; // Increment quantity if already in cart
+            } else {
+              this.cart.push({ ...product, quantity: 1 }); // Add new item
+            }
+          },
+
+          removeFromCart(item) {
+            let index = this.cart.indexOf(item);
+            this.cart.splice(index, 1);
+          },
+
+          addProduct() {
+            // this let us add a new product to the products list
+            // and we can not access the data directly from the template
+
+            this.products.push({
+              id: this.products.length + 1,
+              name: this.name,
+              price: this.price,
+              available: true,
+            });
+          },
+        },
+      });
+
+      // mount the app to the div with the id app
+      app.mount("#app");
+    </script>
+  </body>
+</html>
