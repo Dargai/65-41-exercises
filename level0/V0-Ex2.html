@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head></head>
+    <style>
+        .makeRed{
+            color: red;
+        }
+    </style>
+	<body>
+		<div id="app">
+            <label>Name : </label>
+            {{name}}
+            <input v-model="name" type="text" id="name" placeholder="your name">
+        </div>
+        
+        <script type="module">
+            import { createApp } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js"; 
+        createApp({
+            data(){
+                return {
+                    name
+                }
+            }
+        }).mount('#app')
+        </script>
+
+	</body>
+</html>

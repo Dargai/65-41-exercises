@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head></head>
+    <style>
+        .makeRed{
+            color: red;
+        }
+    </style>
+	<body>
+		<div id="app">
+            <label for="name">Name : {{name}}</label> 
+            <br>
+            <label for="email">Email : {{email}}</label> 
+            <br>
+            <input v-model="name" type="text" id="name" placeholder="your name">
+            <br>
+            <input v-model="email" type="text" id="email" placeholder="your email">
+            
+        </div>
+        
+        <script type="module">
+            import { createApp } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js"; 
+        createApp({
+            data(){
+                return {
+                    name: null,
+                    email: ``
+                }
+            }
+        }).mount('#app')
+        </script>
+	</body>
+    <!--
+        s'il y plus que un input, il faut ajouter un v-model pour chaque input
+        v-model est une directive qui permet de lier un input à une variable
+        et pour afficher la valeur de la variable, on utilise les doubles accolades {{nom_v_model}}
+        pour le faire fonctionner dans un script type module, il faut importer createApp de vue
+        et de retourner soit name: null ou name: `` 
+    
+    -->
+</html>
